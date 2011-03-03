@@ -1,0 +1,44 @@
+so each field has a type and a length.
+short => 2 byte int
+
+everything we write, we write as a byte array in both node.js and actionscript
+we communicate via objects:
+an object is a JSON kind of object, with some additional notes
+every object has a unique ID assigned by the server (as all objects are created by the server).
+each field of the object has an id, name, type, length, and value
+the id is a unique identifier.  it is auto-incremented from 1.
+the name is the readable name of the object.
+the type is the parsing type of the object (string, number, boolean, etc)
+the length is the number of bytes that the data takes
+the value is the current value of the data.
+some objects are written by the client, some are written by the server
+some are persisted in the mongoDB
+all this metadata is stored with the object intelligently.
+an object can have at most 255 properties.  that's a lot eh
+
+
+if the client wants to make an object, instead they ask the server to make an object on their behalf
+
+For example,
+Say each player controls a spaceship.
+There are asteroids they can blast.
+So each player would have a ShipController object.  This object records what keys the player is pressing.  These would be client-owned.
+On the server, there would be Ship objects.  These objects would be updated by a server run simulation that tracks the their position, velocity, and other info like life and such.
+
+
+Protocol:
+Object Create
+Object Destroy
+Delta Update
+To compress a delta update, you do:
+ObjID
+Delta
+For each field that has changed:
+ Add to Delta (1 << (field.id - 1))
+ Write the new value to the buffer
+
+To execute the delta update:
+Take the ObjID that has changed, find the Obj
+For each field:
+ If Delta & (1 << (field.id - 1)) != 0:
+  Read from the buffer field.length bytes, parse and set field.value
