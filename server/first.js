@@ -40,11 +40,11 @@ function Player(name) {
 }
 
 var net = require('net');
-var jspack = require('./jspack');
+var jspack = require('./jspack').jspack;
 
 net.createServer(function (socket) {
 	console.log("New Connection.");
-	socket.write("What is your name?\r\n");
+	//socket.write("What is your name?\r\n");
 	socket.on("data", function(data) {
 		cmd = data.toString().trim()
 		
@@ -52,7 +52,7 @@ net.createServer(function (socket) {
 			players[socket] = new Player();
 			players[socket].name = cmd;
 			console.log("New player: " + players[socket].name);
-			var b = jspack.Pack('H', [128])
+			var b = new Buffer(jspack.Pack('Hc', [65, '\n']));
 			socket.write(b);
 			//socket.write("Hello, " + players[socket].name + '\n');
 			return;
